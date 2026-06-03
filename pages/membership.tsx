@@ -3,8 +3,17 @@ import Footer from "@/components/footer";
 import { Users } from "lucide-react";
 import membership from '../assets/membership.jpg';
 import Image from "next/image";
+import { GetServerSideProps } from "next";
+import { readLinks } from "@/utils/storage";
 
-export default function Membership() {
+interface MembershipProps { membershipFormUrl: string; }
+
+export const getServerSideProps: GetServerSideProps<MembershipProps> = async () => {
+    const data = await readLinks();
+    return { props: { membershipFormUrl: data.membershipFormUrl } };
+};
+
+export default function Membership({ membershipFormUrl }: MembershipProps) {
     return (
         <div className='max-w-7xl mx-auto'>
             <Navbar />
@@ -38,7 +47,7 @@ export default function Membership() {
                     {/* Form Section */}
                     <div className='w-full max-w-4xl flex justify-center'>
                         <iframe
-                            src="https://docs.google.com/forms/d/e/1FAIpQLSds1kWl9mzx4UYoiUR9OKBf8cBIDVsiEXC9QQ4k2n5h8QxxVQ/viewform?embedded=true"
+                            src={membershipFormUrl}
                             width="640"
                             height="2334"
                             style={{ border: 0, margin: 0 }}

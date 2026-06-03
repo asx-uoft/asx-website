@@ -1,159 +1,110 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import asx2425 from '../assets/asx2425.jpeg';
 import Image from "next/image";
-import { Separator } from "@/components/ui/separator";
-import telescope from '../assets/telescope.svg';
-import planet from '../assets/planet.svg';
-import { Button } from "@/components/ui/button";
-import email from '../assets/email.svg';
-import discord from '../assets/discord.svg';
-import instagram from '../assets/instagram.svg';
-import linkedin from '../assets/linkedin.svg';
-import facebook from '../assets/facebook.svg';
-import youtube from '../assets/youtube.svg';
-import { Badge } from "@/components/ui/badge";
 import albireo from '../assets/albireo.jpg';
+import emailSvg from '../assets/email.svg';
+import { Badge } from "@/components/ui/badge";
+import { GetServerSideProps } from "next";
+import { readLinks, LinksData } from "@/utils/storage";
+import { SOCIAL_SVG_MAP } from "@/utils/socialIcons";
 
-export default function About() {
+interface LinksProps { data: LinksData; }
+
+export const getServerSideProps: GetServerSideProps<LinksProps> = async () => {
+    const data = await readLinks();
+    return { props: { data } };
+};
+
+export default function Links({ data }: LinksProps) {
+    const { email, socials, resourceSections } = data;
+
     return (
         <div className='max-w-7xl mx-auto'>
             <Navbar />
             <div className='container flex flex-col items-center justify-between min-h-screen mx-auto gap-5 sm:gap-10 md:gap-15'>
                 <div className="relative w-full h-36 md:h-54 sm:rounded-xl overflow-hidden max-w-4xl">
                     <Image src={albireo} alt="Albireo" fill className="object-cover" />
-                    {/* Extra dim overlay */}
                     <div className="absolute inset-0 bg-black/40" />
-                    {/* Gradient to keep top darker while preserving text contrast */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
                         <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-md">ASX Links</h1>
                     </div>
                 </div>
+
                 <div className='w-full max-w-4xl flex-col sm:flex-row flex-grow flex gap-5 px-4 sm:gap-10 md:gap-15 justify-center'>
+                    {/* Left column */}
                     <div className='flex flex-col h-full w-full items-center self-start justify-start'>
-                        <a href='/membership' className='bg-primary p-3 rounded rounded-lg text-lg text-background text-center md:text-xl'>Become a Member / Subscribe to our Newsletter!</a>
+                        <a href="/membership" className='bg-primary p-3 rounded-lg text-lg text-background text-center md:text-xl'>
+                            Become a Member / Subscribe to our Newsletter!
+                        </a>
+
+                        {/* Email */}
                         <div className='flex flex-col gap-5 w-full items-center pt-10'>
                             <div className='absolute -translate-y-1/2 z-10 px-4 bg-background'>
                                 <div className='text-xl md:text-2xl'>Contact Us</div>
                             </div>
                             <div className='flex gap-3 border rounded-lg border-gray-700 text-lg md:text-xl p-6 sm:p-8 pt-10 items-center w-full'>
-                                <Image
-                                    src={email}
-                                    alt="Email"
-                                    className="object-cover w-8 h-8 icon-theme"
-                                    width={30}
-                                    height={30}
-                                />
-                                <a href="mailto:space.association.utasx@gmail.com" className="text-secondary block w-full break-words break-all whitespace-normal">space.association.utasx@gmail.com</a>
+                                <Image src={emailSvg} alt="Email" className="object-cover w-8 h-8 icon-theme" width={30} height={30} />
+                                <a href={`mailto:${email}`} className="text-secondary block w-full break-words break-all whitespace-normal">
+                                    {email}
+                                </a>
                             </div>
-
                         </div>
+
+                        {/* Socials */}
                         <div className='flex flex-col gap-5 w-full items-center pt-10'>
                             <div className='absolute -translate-y-1/2 z-10 px-4 bg-background'>
                                 <div className='text-xl md:text-2xl'>Socials</div>
                             </div>
                             <div className='flex flex-col gap-5 border rounded-lg border-gray-700 text-base md:text-lg p-6 sm:p-8 pt-10 items-center w-full'>
-                                <div className='flex gap-3 w-full items-center'>
-                                    <Image
-                                        src={discord}
-                                        alt="Discord"
-                                        className="object-cover w-8 h-8 icon-theme"
-                                        width={30}
-                                        height={30}
-                                    />
-                                    <a href="https://discord.gg/mTZMCKWsjr" className='text-secondary'>Discord</a>
-                                    <Badge variant={'default'} className='text-sm bg-foreground text-background'>New!</Badge>
-                                </div>
-                                <div className='flex gap-3 w-full items-center'>
-                                    <Image
-                                        src={instagram}
-                                        alt="Instagram"
-                                        className="object-cover w-8 h-8 icon-theme"
-                                        width={30}
-                                        height={30}
-                                    />
-                                    <a href="https://www.instagram.com/asx_uoft/" className='text-secondary'>Instagram</a>
-                                </div>
-                                <div className='flex gap-3 w-full items-center'>
-                                    <Image
-                                        src={linkedin}
-                                        alt="LinkedIn"
-                                        className="object-cover w-8 h-8 icon-theme"
-                                        width={30}
-                                        height={30}
-                                    />
-                                    <a href="https://www.linkedin.com/company/asx-society/" className='text-secondary'>LinkedIn</a>
-                                </div>
-                                <div className='flex gap-3 w-full items-center'>
-                                    <Image
-                                        src={facebook}
-                                        alt="Facebook"
-                                        className="object-cover w-8 h-8 icon-theme"
-                                        width={30}
-                                        height={30}
-                                    />
-                                    <a href="https://www.facebook.com/ASXAssoc" className='text-secondary'>Facebook</a>
-                                </div>
-                                <div className='flex gap-3 w-full items-center'>
-                                    <Image
-                                        src={youtube}
-                                        alt="YouTube"
-                                        className="object-cover w-8 h-8 icon-theme"
-                                        width={30}
-                                        height={30}
-                                    />
-                                    <a href="https://www.youtube.com/@astronomyandspaceexplorati5753" className='text-secondary'>YouTube</a>
-                                </div>
+                                {socials.map(social => (
+                                    <div key={social.id} className='flex gap-3 w-full items-center'>
+                                        {SOCIAL_SVG_MAP[social.icon] && (
+                                            <Image
+                                                src={SOCIAL_SVG_MAP[social.icon]!}
+                                                alt={social.name}
+                                                className="object-cover w-8 h-8 icon-theme"
+                                                width={30}
+                                                height={30}
+                                            />
+                                        )}
+                                        <a href={social.url} target="_blank" rel="noopener noreferrer" className='text-secondary'>
+                                            {social.name}
+                                        </a>
+                                        {social.isNew && (
+                                            <Badge variant="default" className='text-sm bg-foreground text-background'>New!</Badge>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-
                         </div>
                     </div>
+
+                    {/* Right column — Organizations / Resources */}
                     <div className='flex flex-col h-full w-full items-center self-start justify-start'>
                         <div className='flex flex-col gap-5 w-full items-center pt-10'>
                             <div className='absolute -translate-y-1/2 z-10 px-4 bg-background'>
                                 <div className='text-xl md:text-2xl'>Organizations / Resources</div>
                             </div>
                             <div className='flex flex-col gap-5 border rounded-lg border-gray-700 text-base md:text-lg p-6 sm:p-8 pt-10 items-left w-full'>
-                                <div className='text-lg font-semibold md:text-xl'>UofT related</div>
-                                <a href="https://astro.utoronto.ca/" target="_blank" className='text-secondary w-fit'>Department of Astronomy & Astrophysics</a>
-                                <li><a href="https://www.astro.utoronto.ca/astrotours/singlepage/discover/#:~:text=On%20the%20first%20Thursday%20of,or%20sign%2Dup%20is%20required." target="_blank" className='text-secondary w-fit'>Public Tours</a></li>
-                                <a href="https://www.dunlap.utoronto.ca/" target="_blank" className='text-secondary w-fit'>Dunlap Institute for Astronomy & Astrophysics</a>
-                                <a href="https://mississauga.rasc.ca/" target="_blank" className='text-secondary w-fit'>Royal Astronomical Society (RASC) @ UofT Mississauga</a>
-                                <a href="https://www.utias.utoronto.ca/" target="_blank" className='text-secondary w-fit'>Institute for Aerospace Studies (UTIAS)</a>
-                                <div className='text-lg font-semibold md:text-xl'>Canadian Astronomy & Space Groups</div>
-                                <a href="https://astroatyork.wixsite.com/acyu" target="_blank" className='text-secondary w-fit'>Astronomy Club @ York University</a>
-                                <a href="https://www.casi.ca/" target="_blank" className='text-secondary w-fit'>Canadian Aeronautics & Space Institute (CASI)</a>
-                                <a href="https://www.css.ca/" target="_blank" className='text-secondary w-fit'>Canadian Space Society (CSS)</a>
-                                <a href="https://www.marssociety.ca/" target="_blank" className='text-secondary w-fit'>Mars Society of Canada</a>
-                                <a href="https://www.nyaa.ca/" target="_blank" className='text-secondary w-fit'>North York Astronomical Association</a>
-                                <a href="https://rasc.ca/" target="_blank" className='text-secondary w-fit'>Royal Astronomical Society of Canada (RASC)</a>
-                                <a href="https://toronto.rasc.ca/" target="_blank" className='text-secondary w-fit'>RASC Toronto Centre</a>
-                                <div className='text-lg font-semibold md:text-xl'>Other Resources</div>
-                                <a href="https://www.asc-csa.gc.ca/eng/default.asp" target="_blank" className='text-secondary w-fit'>Canadian Space Agency (CSA)</a>
-                                <a href="https://www.astronomerswithoutborders.org/" target="_blank" className='text-secondary w-fit'>Astronomers without Borders</a>
-                                <a href="https://www.planetary.org/" target="_blank" className='text-secondary w-fit'>The Planetary Society</a>
-                                <a href="https://iayc.org" target="_blank" className='text-secondary w-fit'>International Astronomical Youth Camp</a>
-                                <a href="https://www.marssociety.org" target="_blank" className='text-secondary w-fit'>Mars Society - USA</a>
-                                <a href="https://www.nss.org" target="_blank" className='text-secondary w-fit'>National Space Society - USA</a>
-                                <a href="https://skyandtelescope.org/" target="_blank" className='text-secondary w-fit'>Sky & Telescope</a>
-                                <a href="https://www.cloudynights.com/" target="_blank" className='text-secondary w-fit'>Cloudy Nights</a>
-                                <a href="http://seasky.org/astronomy/astronomy-calendar-current.html" target="_blank" className='text-secondary w-fit'>Astronomical Calendar</a>
-                                <a href="https://starlust.org" target="_blank" className='text-secondary w-fit'>Star Lust</a>
-                                <a href="https://www.universetoday.com/" target="_blank" className='text-secondary w-fit'>Universe Today</a>
-                                <a href="https://telescopicwatch.com" target="_blank" className='text-secondary w-fit'>Telescopic Watch</a>
-                                <a href="https://skymaps.com/" target="_blank" className='text-secondary w-fit'>Sky Maps</a>
-                                <a href="https://octaneseating.com/blog/astronomy-in-media/" target="_blank" className='text-secondary w-fit'>Astronomy in Media</a>
-                                <a href="https://blog.aaastateofplay.com/2022/02/astronomy-resources-for-kids.html" target="_blank" className='text-secondary w-fit'>Astronomy Resources for Kids</a>
-
+                                {resourceSections.map(section => (
+                                    <div key={section.id}>
+                                        <div className='text-lg font-semibold md:text-xl mb-2'>{section.header}</div>
+                                        {section.links.map(link => (
+                                            <div key={link.id} className="mb-2">
+                                                <a href={link.url} target="_blank" rel="noopener noreferrer" className='text-secondary w-fit block'>
+                                                    {link.label}
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
                             </div>
-
                         </div>
                     </div>
                 </div>
-                <Footer />
+                <Footer data={data} />
             </div>
         </div>
-
     );
 }
