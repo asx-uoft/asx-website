@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (req.method === 'GET') {
             const pageSize = Number(req.query.pageSize) || 10;
             const startKey = typeof req.query.startKey === 'string' ? req.query.startKey : undefined;
-            const data = await getIndex(pageSize, startKey);
+            const data = await getIndex(pageSize, startKey, true);
             return res.status(200).json(data);
         }
 

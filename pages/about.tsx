@@ -2,7 +2,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Separator } from "@/components/ui/separator";
 import { MoonStar, Telescope } from "lucide-react";
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import { readAbout, AboutData } from "@/utils/storage";
 
 interface ExecCardProps {
@@ -23,10 +23,10 @@ interface AboutProps {
   data: AboutData;
 }
 
-export const getServerSideProps: GetServerSideProps<AboutProps> = async () => {
+export const getStaticProps: GetStaticProps<AboutProps> = async () => {
   const data = await readAbout();
   console.log('Fetched about data:', data);
-  return { props: { data } };
+  return { props: { data }, revalidate: 30 };
 };
 
 export default function About({ data }: AboutProps) {

@@ -3,14 +3,14 @@ import Footer from "@/components/footer";
 import { Users } from "lucide-react";
 import membership from '../assets/membership.jpg';
 import Image from "next/image";
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import { readLinks } from "@/utils/storage";
 
 interface MembershipProps { membershipFormUrl: string; }
 
-export const getServerSideProps: GetServerSideProps<MembershipProps> = async () => {
+export const getStaticProps: GetStaticProps<MembershipProps> = async () => {
     const data = await readLinks();
-    return { props: { membershipFormUrl: data.membershipFormUrl } };
+    return { props: { membershipFormUrl: data.membershipFormUrl }, revalidate: 30 };
 };
 
 export default function Membership({ membershipFormUrl }: MembershipProps) {

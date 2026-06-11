@@ -4,14 +4,14 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import { readSponsors, SponsorsData } from "@/utils/storage";
 
 interface SponsorProps { data: SponsorsData; }
 
-export const getServerSideProps: GetServerSideProps<SponsorProps> = async () => {
+export const getStaticProps: GetStaticProps<SponsorProps> = async () => {
     const data = await readSponsors();
-    return { props: { data } };
+    return { props: { data }, revalidate: 30 };
 };
 
 export default function Sponsor({ data }: SponsorProps) {

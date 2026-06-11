@@ -4,15 +4,15 @@ import Image from "next/image";
 import albireo from '../assets/albireo.jpg';
 import emailSvg from '../assets/email.svg';
 import { Badge } from "@/components/ui/badge";
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import { readLinks, LinksData } from "@/utils/storage";
 import { SOCIAL_SVG_MAP } from "@/utils/socialIcons";
 
 interface LinksProps { data: LinksData; }
 
-export const getServerSideProps: GetServerSideProps<LinksProps> = async () => {
+export const getStaticProps: GetStaticProps<LinksProps> = async () => {
     const data = await readLinks();
-    return { props: { data } };
+    return { props: { data }, revalidate: 30 };
 };
 
 export default function Links({ data }: LinksProps) {

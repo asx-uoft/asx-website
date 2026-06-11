@@ -5,7 +5,7 @@ import { readSponsors, writeSponsors, SponsorsData } from '@/utils/storage';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         if (req.method === 'GET') {
-            return res.status(200).json(await readSponsors());
+            return res.status(200).json(await readSponsors(true));
         }
 
         if (req.method === 'PUT') {

@@ -1,4 +1,4 @@
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import HeroBanner from "@/components/herobanner";
 import Mission from "@/components/mission";
 import Latest from "@/components/latest";
@@ -15,12 +15,12 @@ interface HomeProps {
     homeData: HomeData;
 }
 
-export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
+export const getStaticProps: GetStaticProps<HomeProps> = async () => {
     const [newsData, homeData] = await Promise.all([
         getIndex(3).catch(() => ({ items: [] as Article[] })),
         readHome(),
     ]);
-    return { props: { news: newsData.items, homeData } };
+    return { props: { news: newsData.items, homeData }, revalidate: 30 };
 };
 
 export default function Home({ news, homeData }: HomeProps) {

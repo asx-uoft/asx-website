@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         if (req.method === 'GET') {
-            const article = await getArticleBlob(key);
+            const article = await getArticleBlob(key, true);
             if (!article) return res.status(404).json({ message: 'Not found' });
             return res.status(200).json(article);
         }

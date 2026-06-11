@@ -5,7 +5,7 @@ import { readHome, writeHome, HomeData } from '@/utils/storage';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         if (req.method === 'GET') {
-            return res.status(200).json(await readHome());
+            return res.status(200).json(await readHome(true));
         }
 
         if (req.method === 'PUT') {

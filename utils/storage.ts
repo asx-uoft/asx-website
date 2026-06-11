@@ -1,5 +1,13 @@
 import { put, list, del } from '@vercel/blob';
 
+// Derive the CDN base URL from BLOB_STORE_ID without calling list().
+// BLOB_STORE_ID = "store_abc123" → subdomain = "abc123"
+// This means reads are pure CDN fetches (free) — list() only runs on writes.
+function blobUrl(path: string): string {
+    const storeId = (process.env.BLOB_STORE_ID ?? '').replace(/^store_/, '');
+    return `https://${storeId}.public.blob.vercel-storage.com/${path}`;
+}
+
 export interface Article {
     title: string;
     key: string;
@@ -61,10 +69,8 @@ const HOME_DEFAULTS: HomeData = {
     ],
 };
 
-export async function readHome(): Promise<HomeData> {
-    const { blobs } = await list({ prefix: HOME_PATH });
-    if (!blobs.length) return HOME_DEFAULTS;
-    const res = await fetchBlob(blobs[0].url);
+export async function readHome(fresh = false): Promise<HomeData> {
+    const res = await fetchBlob(blobUrl(HOME_PATH), fresh);
     if (!res.ok) return HOME_DEFAULTS;
     return res.json();
 }
@@ -139,10 +145,8 @@ export const SPONSORS_DEFAULTS: SponsorsData = {
     ],
 };
 
-export async function readSponsors(): Promise<SponsorsData> {
-    const { blobs } = await list({ prefix: SPONSORS_PATH });
-    if (!blobs.length) return SPONSORS_DEFAULTS;
-    const res = await fetchBlob(blobs[0].url);
+export async function readSponsors(fresh = false): Promise<SponsorsData> {
+    const res = await fetchBlob(blobUrl(SPONSORS_PATH), fresh);
     if (!res.ok) return SPONSORS_DEFAULTS;
     return res.json();
 }
@@ -243,10 +247,8 @@ export const LINKS_DEFAULTS: LinksData = {
     ],
 };
 
-export async function readLinks(): Promise<LinksData> {
-    const { blobs } = await list({ prefix: LINKS_PATH });
-    if (!blobs.length) return LINKS_DEFAULTS;
-    const res = await fetchBlob(blobs[0].url);
+export async function readLinks(fresh = false): Promise<LinksData> {
+    const res = await fetchBlob(blobUrl(LINKS_PATH), fresh);
     if (!res.ok) return LINKS_DEFAULTS;
     return res.json();
 }
@@ -283,8 +285,10 @@ const ABOUT_DEFAULTS: AboutData = {
 // is always hit, regardless of CDN edge caching. Writing uses allowOverwrite
 // so the blob URL never changes — no list() eventual-consistency issues.
 
-async function fetchBlob(url: string): Promise<Response> {
-    return fetch(`${url}?_=${Date.now()}`, { cache: 'no-store' });
+// Public reads hit the CDN (free). Admin/write paths pass fresh=true to bypass.
+async function fetchBlob(url: string, fresh = false): Promise<Response> {
+    const target = fresh ? `${url}?_=${Date.now()}` : url;
+    return fetch(target, { cache: fresh ? 'no-store' : 'default' });
 }
 
 async function deleteStale(prefix: string, canonicalUrl: string): Promise<void> {
@@ -295,10 +299,8 @@ async function deleteStale(prefix: string, canonicalUrl: string): Promise<void> 
 
 // ── About ─────────────────────────────────────────────────────────────────────
 
-export async function readAbout(): Promise<AboutData> {
-    const { blobs } = await list({ prefix: ABOUT_PATH });
-    if (!blobs.length) return ABOUT_DEFAULTS;
-    const res = await fetchBlob(blobs[0].url);
+export async function readAbout(fresh = false): Promise<AboutData> {
+    const res = await fetchBlob(blobUrl(ABOUT_PATH), fresh);
     if (!res.ok) return ABOUT_DEFAULTS;
     return res.json();
 }
@@ -315,11 +317,9 @@ export async function writeAbout(data: AboutData): Promise<void> {
 
 // ── News index ────────────────────────────────────────────────────────────────
 
-async function readIndex(): Promise<Article[]> {
-    const { blobs } = await list({ prefix: INDEX_PATH });
-    if (!blobs.length) return [];
-    const res = await fetchBlob(blobs[0].url);
-    if (!res.ok) throw new Error(`Failed to fetch index: ${res.status}`);
+async function readIndex(fresh = false): Promise<Article[]> {
+    const res = await fetchBlob(blobUrl(INDEX_PATH), fresh);
+    if (!res.ok) return [];
     return res.json();
 }
 
@@ -335,8 +335,8 @@ async function writeIndex(articles: Article[]): Promise<void> {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-export async function getIndex(pageSize = 10, startKey?: string): Promise<NewsPage> {
-    const all = await readIndex();
+export async function getIndex(pageSize = 10, startKey?: string, fresh = false): Promise<NewsPage> {
+    const all = await readIndex(fresh);
     let start = 0;
     if (startKey) {
         const idx = all.findIndex(a => a.key === startKey);
@@ -348,11 +348,9 @@ export async function getIndex(pageSize = 10, startKey?: string): Promise<NewsPa
     return { items, nextKey };
 }
 
-export async function getArticleBlob(key: string): Promise<Article | null> {
+export async function getArticleBlob(key: string, fresh = false): Promise<Article | null> {
     try {
-        const { blobs } = await list({ prefix: `posts/${key}.json` });
-        if (!blobs.length) return null;
-        const res = await fetchBlob(blobs[0].url);
+        const res = await fetchBlob(blobUrl(`posts/${key}.json`), fresh);
         if (!res.ok) return null;
         return res.json();
     } catch {

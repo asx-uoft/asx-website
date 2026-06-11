@@ -5,7 +5,7 @@ import { readLinks, writeLinks, LinksData } from '@/utils/storage';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         if (req.method === 'GET') {
-            const data = await readLinks();
+            const data = await readLinks(true);
             return res.status(200).json(data);
         }
 

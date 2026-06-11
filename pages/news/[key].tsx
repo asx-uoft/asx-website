@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { GetServerSideProps } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import Image from "next/image";
@@ -184,32 +184,23 @@ export default function ArticlePage({ article, error }: ArticlePageProps) {
     );
 }
 
-// Server-side rendering to fetch the article
-export const getServerSideProps: GetServerSideProps = async (context) => {
+import { getIndex } from '@/utils/storage';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+    const { items } = await getIndex(100);
+    return {
+        paths: items.map(a => ({ params: { key: a.key } })),
+        fallback: 'blocking',
+    };
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
     const { key } = context.params!;
-    
     try {
         const article = await getArticleBlob(key as string);
-        
-        if (!article) {
-            return {
-                props: {
-                    error: `Article with key "${key}" not found.`
-                }
-            };
-        }
-
-        return {
-            props: {
-                article
-            }
-        };
-    } catch (error) {
-        console.error('Error fetching article:', error);
-        return {
-            props: {
-                error: 'Failed to load article. Please try again later.'
-            }
-        };
+        if (!article) return { notFound: true };
+        return { props: { article }, revalidate: 30 };
+    } catch {
+        return { props: { error: 'Failed to load article. Please try again later.' }, revalidate: 10 };
     }
 };
